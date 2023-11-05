@@ -442,6 +442,8 @@ if args.csv:
     header_string = "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s"
     format_string = "%d,%s,%s,%s,%s,%s,%d,%d,%d,%.2f"
 
+FLASK_SERVER_IP = '127.0.0.1'
+
 def run_tcplife_info(queue, lock):
     b = BPF(text=bpf_text)
     start_ts = 0
@@ -467,23 +469,25 @@ def run_tcplife_info(queue, lock):
             inet_ntop(AF_INET, pack("I", event.saddr)), event.ports >> 32,
             inet_ntop(AF_INET, pack("I", event.daddr)), event.ports & 0xffffffff,
             event.tx_b / 1024, event.rx_b / 1024, float(event.span_us) / 1000))
-
-        with lock:
-            queue.put({
-                        'source': 'tcplife',
-                        'data': [
-                                event.pid, 
-                                event.task.decode('utf-8', 'replace'), 
-                                event.ts_us,
-                                inet_ntop(AF_INET, pack("I", event.saddr)),
-                                event.ports >> 32,
-                                inet_ntop(AF_INET, pack("I", event.daddr)),
-                                event.ports & 0xffffffff,
-                                event.tx_b / 1024,
-                                event.rx_b / 1024,
-                                float(event.span_us) / 1000
-                        ]
-                    })
+        
+        # don't capture traffic from localhost (where the server is running)
+        if inet_ntop(AF_INET, pack("I", event.saddr)) != FLASK_SERVER_IP:
+            with lock:
+                queue.put({
+                            'source': 'tcplife',
+                            'data': [
+                                    event.pid, 
+                                    event.task.decode('utf-8', 'replace'), 
+                                    event.ts_us,
+                                    inet_ntop(AF_INET, pack("I", event.saddr)),
+                                    event.ports >> 32,
+                                    inet_ntop(AF_INET, pack("I", event.daddr)),
+                                    event.ports & 0xffffffff,
+                                    event.tx_b / 1024,
+                                    event.rx_b / 1024,
+                                    float(event.span_us) / 1000
+                            ]
+                        })
 
     def print_ipv6_event(cpu, data, size):
         event = b["ipv6_events"].event(data)

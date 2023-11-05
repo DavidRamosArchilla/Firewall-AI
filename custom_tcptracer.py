@@ -538,6 +538,8 @@ bpf_text = bpf_text.replace('##FILTER_PID##', pid_filter)
 bpf_text = bpf_text.replace('##FILTER_NETNS##', netns_filter)
 bpf_text = filter_by_containers(args) + bpf_text
 
+FLASK_SERVER_IP = '127.0.0.1'
+
 def run_tcptracer_info(queue, lock):
     verbose_types = {"C": "connect", "A": "accept",
                     "X": "close", "U": "unknown"}
@@ -590,21 +592,21 @@ def run_tcptracer_info(queue, lock):
             print(" %-8d" % event.netns)
         else:
             print()
-
-        with lock:
-            queue.put({
-                        'source': 'tcptracer',
-                        'data': [ 
-                                type_str,
-                                event.pid, 
-                                event.comm.decode('utf-8', 'replace'),
-                                event.ip,
-                                inet_ntop(AF_INET, pack("I", event.saddr)),
-                                inet_ntop(AF_INET, pack("I", event.daddr)),
-                                event.sport,
-                                event.dport
-                        ]
-                    })
+        if inet_ntop(AF_INET, pack("I", event.saddr)) != FLASK_SERVER_IP:
+            with lock:
+                queue.put({
+                            'source': 'tcptracer',
+                            'data': [ 
+                                    type_str,
+                                    event.pid, 
+                                    event.comm.decode('utf-8', 'replace'),
+                                    event.ip,
+                                    inet_ntop(AF_INET, pack("I", event.saddr)),
+                                    inet_ntop(AF_INET, pack("I", event.daddr)),
+                                    event.sport,
+                                    event.dport
+                            ]
+                        })
 
 
     def print_ipv6_event(cpu, data, size):

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
@@ -13,6 +13,7 @@ def post_data():
         # Check if the request data is in JSON format
         if request.is_json:
             data = request.get_json()  # This will parse the JSON data into a Python dictionary
+            print("Received data:", data)
             # Now you can work with the 'data' dictionary
             return jsonify({"message": "Data received successfully", "data": data}), 200
         else:
