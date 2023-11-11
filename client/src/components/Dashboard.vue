@@ -2,14 +2,15 @@
     <div> {{ tableData[0] }} </div>
     <div>
       <DataTable :value="tableData"> 
-        <Column field="field1" header="Header 1"></Column>
-        <Column field="field2" header="Header 2"></Column>
+        <Column field="src_ip" header="Source IP"></Column>
+        <Column field="dst_ip" header="Destination IP"></Column>
+        <Column field="confidence" header="Confidence"></Column>
+        <Column field="type" header="Type"></Column>
       </DataTable>
     </div>
   </template>
   
   <script>
-  // import { ref, onMounted } from 'vue';
   import DataTable from 'primevue/datatable';
   import Column from 'primevue/column';
   import 'primevue/resources/primevue.min.css';

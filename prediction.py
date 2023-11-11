@@ -32,8 +32,11 @@ class FirewallModel:
         print(prepared_data.shape)
         preds = self.model.predict_proba(prepared_data)
         predicted_classes = np.argmax(preds, axis=1)
+        print(preds)
         print(predicted_classes)
-        return preds, self.label_encoder.inverse_transform(predicted_classes)
+        print(preds[np.arange(preds.shape[0]), predicted_classes])
+
+        return preds[np.arange(preds.shape[0]), predicted_classes], self.label_encoder.inverse_transform(predicted_classes)
 
     def prepare_data(self, data): 
         final_data = []

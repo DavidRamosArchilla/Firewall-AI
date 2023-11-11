@@ -36,12 +36,20 @@ def post_data():
         # Check if the request data is in JSON format
         if request.is_json:
             data = request.get_json()  # This will parse the JSON data into a Python dictionary
-            # print("Received new data:", data)
-            predictions, perdicted_class =  model.predict(data['flows'])
-            for i, pred in enumerate(perdicted_class):
-                if pred != '': # BENIGN
-                    predicted_data.append({'field1': pred, 'field2': data['flows'][i]['src_ip']})# data['src_ip']
-
+            print("Received new data:", data)
+            confidences, predcted_classes =  model.predict(data['flows'])
+            for i, (confidence, predcted_class) in enumerate(zip(confidences, predcted_classes)):
+                if predcted_class != '': # BENIGN
+                    flow = data['flows'][i]
+                    predicted_data.append({'type': predcted_class,
+                                            'src_ip': f'{flow["src_ip"]}:{flow["src_port"]}',
+                                            'dst_ip': f'{flow["dst_ip"]}:{flow["dst_port"]}',
+                                            'confidence': float(confidence)
+                                            })
+                    # print({'type': predcted_class,
+                    #                         'src_ip': data['flows'][i]['src_ip'],
+                    #                         'confidence': float(confidence)
+                    #                         })
             print(model.predict(data['flows']))
             # socketio.emit('new_data', {'field1': 'test', 'field2': 'test2'})
             # Now you can work with the 'data' dictionary
@@ -55,7 +63,7 @@ def post_data():
 @app.route('/get_data', methods=['GET'])
 def get_data():
     # data = {"field1": "Value1", "field2": "Value2"}  # Replace with your data retrieval logic
-    data = predicted_data.copy()
+    # data = predicted_data.copy()
     print(len(predicted_data))
     # return jsonify(data)
     return jsonify(predicted_data)
