@@ -478,7 +478,6 @@ def run_tcplife_info(queue, lock):
                             'data': [
                                     event.pid, 
                                     event.task.decode('utf-8', 'replace'), 
-                                    event.ts_us,
                                     inet_ntop(AF_INET, pack("I", event.saddr)),
                                     event.ports >> 32,
                                     inet_ntop(AF_INET, pack("I", event.daddr)),
