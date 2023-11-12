@@ -62,7 +62,7 @@
         return {
           tableData: [],
           filters: null,
-          attack_types: ['BENIGN', 'LDAP', 'MYSQL', 'UDP', 'Syn'],
+          attack_types: ['BENIGN', 'LDAP', 'MSSQL', 'UDP', 'Syn'],
         };
     },
     components: {

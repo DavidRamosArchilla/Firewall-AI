@@ -1,9 +1,41 @@
 from flask import Flask, redirect, url_for, request, jsonify, send_from_directory
 from flask_cors import CORS
 
+# from cicflowmeter.src.cicflowmeter.sniffer import create_sniffer
+from pyflowmeter import sniffer
+
 from prediction import FirewallModel
 
+from multiprocessing import Process
+
 model = FirewallModel()
+
+def start_sniffer():
+    interface = 'eth0'
+    # sniffer = create_sniffer(
+    #         None,
+    #         interface,
+    #         'flow',
+    #         'file',
+    #         'url',
+    #     )
+    traffic_sniffer = sniffer.create_sniffer(
+            None,
+            interface,
+            'flow',
+            'file',
+            'url',
+        )
+    traffic_sniffer.start()
+    try:
+        traffic_sniffer.join()
+    except KeyboardInterrupt:
+        traffic_sniffer.stop()
+    finally:
+        traffic_sniffer.join()
+sniffer_process = Process(target=start_sniffer)
+
+sniffer_process.start()
 
 app = Flask(__name__)
 CORS(app) 
@@ -35,7 +67,7 @@ def post_data():
     # try:
         # Check if the request data is in JSON format
         if request.is_json:
-            data = request.get_json()  # This will parse the JSON data into a Python dictionary
+            data = request.get_json()
             print("Received new data:", data)
             confidences, predcted_classes =  model.predict(data['flows'])
             for i, (confidence, predcted_class) in enumerate(zip(confidences, predcted_classes)):
@@ -51,9 +83,7 @@ def post_data():
                     #                         'confidence': float(confidence)
                     #                         })
             print(model.predict(data['flows']))
-            # socketio.emit('new_data', {'field1': 'test', 'field2': 'test2'})
-            # Now you can work with the 'data' dictionary
-            return jsonify({"message": "Data received successfully", "data": data}), 200
+            return jsonify({"message": "Data received successfully"}), 200
         else:
             return jsonify({"error": "Invalid JSON data in the request"}), 400
     # except Exception as e:
@@ -62,10 +92,7 @@ def post_data():
 
 @app.route('/get_data', methods=['GET'])
 def get_data():
-    # data = {"field1": "Value1", "field2": "Value2"}  # Replace with your data retrieval logic
-    # data = predicted_data.copy()
     print(len(predicted_data))
-    # return jsonify(data)
     return jsonify(predicted_data)
 
 if __name__ == '__main__':
