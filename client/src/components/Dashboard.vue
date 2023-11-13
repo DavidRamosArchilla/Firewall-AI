@@ -1,7 +1,7 @@
 <template>
     <!-- <div> {{ tableData[0] }} </div> -->
     <div>
-      <DataTable v-model:filters="filters" :value="tableData" paginator :rows="10" :rowsPerPageOptions="[10, 20, 50, 100]" filterDisplay="row"
+      <DataTable v-model:filters="filters" :value="tableData" ref="dt" paginator :rows="10" :rowsPerPageOptions="[10, 20, 50, 100]" filterDisplay="row"
             :globalFilterFields="['name', 'country.name', 'representative.name', 'status']" > 
         <template #header>
           <div class="flex justify-content-between">
@@ -13,8 +13,16 @@
         <template #paginatorstart>
         </template>
         <template #paginatorend>
-            <Button type="button" icon="pi pi-download" outlined label="Download"/>
+            <Button type="button" icon="pi pi-download" outlined label="Download" @click="exportCSV($event)"/>
         </template>
+        <Column field="timestamp" header="Timestamp" sortable style="min-width: 10rem">
+          <template #body="{ data }">
+              {{ data.timestamp }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+              <InputText v-model="filterModel.value" type="date" @input="filterCallback()" class="p-column-filter"/>
+          </template>
+        </Column>
         <Column field="src_ip" header="Source IP" style="min-width: 12rem">
           <template #body="{ data }">
               {{ data.src_ip }}
@@ -54,6 +62,7 @@
   import InputText from 'primevue/inputtext';
   import Dropdown from 'primevue/dropdown';
   import Button from 'primevue/button';
+  import Calendar from 'primevue/calendar';
   import Tag from 'primevue/tag';
   import { FilterMatchMode } from 'primevue/api'; 
   
@@ -71,7 +80,8 @@
       InputText,
       Tag,
       Dropdown,
-      Button
+      Button,
+      Calendar
     },
     created() {
         this.initFilters();
@@ -112,8 +122,12 @@
                 src_ip: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
                 dst_ip: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
                 type: { value: null, matchMode: FilterMatchMode.EQUALS },
+                timestamp: { value: null, matchMode: FilterMatchMode.CONTAINS },
             }
-      }
+      },
+      exportCSV() {
+            this.$refs.dt.exportCSV();
+        }
     },
     
   };

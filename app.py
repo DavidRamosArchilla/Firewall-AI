@@ -76,7 +76,8 @@ def post_data():
                     predicted_data.append({'type': predcted_class,
                                             'src_ip': f'{flow["src_ip"]}:{flow["src_port"]}',
                                             'dst_ip': f'{flow["dst_ip"]}:{flow["dst_port"]}',
-                                            'confidence': f"{confidence:.2%}"
+                                            'confidence': f'{confidence:.2%}',
+                                            'timestamp': flow["timestamp"]
                                             })
                     # print({'type': predcted_class,
                     #                         'src_ip': data['flows'][i]['src_ip'],
