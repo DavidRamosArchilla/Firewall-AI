@@ -11,20 +11,10 @@ from multiprocessing import Process
 model = FirewallModel()
 
 def start_sniffer():
-    interface = 'eth0'
-    # sniffer = create_sniffer(
-    #         None,
-    #         interface,
-    #         'flow',
-    #         'file',
-    #         'url',
-    #     )
     traffic_sniffer = sniffer.create_sniffer(
-            None,
-            interface,
-            'flow',
-            'file',
-            'url',
+            input_interface='eth0',
+            server_endpoint='http://127.0.0.1:5000/send_traffic',
+            verbose=True
         )
     traffic_sniffer.start()
     try:

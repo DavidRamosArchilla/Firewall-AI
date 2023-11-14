@@ -27,7 +27,7 @@ config.ini
 secrets.json
 
 # Ignore generated files and build artifacts
-/dist/
+# /dist/
 /build/
 *.min.js
 
