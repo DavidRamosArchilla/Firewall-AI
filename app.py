@@ -1,7 +1,6 @@
 from flask import Flask, redirect, url_for, request, jsonify, send_from_directory
 from flask_cors import CORS
 
-# from cicflowmeter.src.cicflowmeter.sniffer import create_sniffer
 from pyflowmeter import sniffer
 
 from prediction import FirewallModel

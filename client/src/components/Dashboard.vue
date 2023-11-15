@@ -88,7 +88,7 @@
     },
     mounted() {
       const fetchData = () => {
-        fetch('http://localhost:5000/get_data') // Replace with your server URL
+        fetch('/get_data') // Replace with your server URL http://localhost:5000
           .then((response) => response.json())
           .then((data) => {
             // tableData.value = data;
@@ -100,6 +100,7 @@
           })
           .catch((error) => {
             console.error('Error fetching data:', error);
+            console.error(response);
           });
   
       };
