@@ -71,32 +71,25 @@ def dashboard():
 
 @app.route('/send_traffic', methods=['POST'])
 def post_data():
-    # try:
-        # Check if the request data is in JSON format
-        if request.is_json:
-            data = request.get_json()
-            # print("Received new data:", data)
-            confidences, predcted_classes =  model.predict(data['flows'])
-            for i, (confidence, predcted_class) in enumerate(zip(confidences, predcted_classes)):
-                if predcted_class != '': # BENIGN
-                    flow = data['flows'][i]
-                    predicted_data.append({'type': predcted_class,
-                                            'src_ip': f'{flow["src_ip"]}:{flow["src_port"]}',
-                                            'dst_ip': f'{flow["dst_ip"]}:{flow["dst_port"]}',
-                                            'confidence': f'{confidence:.2%}',
-                                            'timestamp': flow["timestamp"]
-                                            })
-                    # print({'type': predcted_class,
-                    #                         'src_ip': data['flows'][i]['src_ip'],
-                    #                         'confidence': float(confidence)
-                    #                         })
-            print(model.predict(data['flows']))
-            return jsonify({"message": "Data received successfully"}), 200
-        else:
-            return jsonify({"error": "Invalid JSON data in the request"}), 400
-    # except Exception as e:
-    #     print(e)
-    #     return jsonify({"error": "An error occurred while processing the request", "details": str(e)}), 500
+    if request.is_json:
+        data = request.get_json()
+        # print("Received new data:", data)
+        confidences, predcted_classes =  model.predict(data['flows'])
+        for i, (confidence, predcted_class) in enumerate(zip(confidences, predcted_classes)):
+            if predcted_class != '': # BENIGN
+                flow = data['flows'][i]
+                predicted_data.append({'type': predcted_class,
+                                        'src_ip': f'{flow["src_ip"]}:{flow["src_port"]}',
+                                        'dst_ip': f'{flow["dst_ip"]}:{flow["dst_port"]}',
+                                        'confidence': f'{confidence:.2%}',
+                                        'timestamp': flow["timestamp"]
+                                        })
+
+        print(model.predict(data['flows']))
+        return jsonify({"message": "Data received successfully"}), 200
+    else:
+        return jsonify({"error": "Invalid JSON data in the request"}), 400
+
 
 @app.route('/get_data', methods=['GET'])
 def get_data():
