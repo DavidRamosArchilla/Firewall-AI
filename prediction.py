@@ -1,6 +1,7 @@
 from joblib import load 
 import numpy as np
 import pickle
+import tensorflow as tf
 
 class FirewallModel:
 
@@ -15,10 +16,11 @@ class FirewallModel:
         self.label_encoder = self.load_label_encoder()
 
     def load_model(self):
-        # model.save("model.keras")
-        with open('./ML_models/xgboost_model.pkl', 'rb') as model_file:
-           return pickle.load(model_file)
-        # return tf.keras.models.load_model(FirewallModel.MODEL_FILE_PATH)
+        # if self.use_xgboost:
+        # with open('./ML_models/xgboost_model.pkl', 'rb') as model_file:
+        #    return pickle.load(model_file)
+        # else:
+        return tf.keras.models.load_model(FirewallModel.MODEL_FILE_PATH)
 
     def load_scaler(self):
         return load(FirewallModel.SCALER_PATH)
@@ -30,7 +32,8 @@ class FirewallModel:
     def predict(self, data):
         prepared_data = self.prepare_data(data)
         print(prepared_data.shape)
-        preds = self.model.predict_proba(prepared_data)
+        # preds = self.model.predict_proba(prepared_data)
+        preds = self.model.predict(prepared_data)
         predicted_classes = np.argmax(preds, axis=1)
         print(preds)
         print(predicted_classes)
@@ -43,7 +46,7 @@ class FirewallModel:
         for flow in data:
             features_list = [flow[feature] for feature in FirewallModel.COLUMNS_ORDER]
             final_data.append(features_list)
-        return np.array(final_data)
+        return self.scaler.transform(np.array(final_data))
                 
 
     # def prepare_tpclie(self, data):

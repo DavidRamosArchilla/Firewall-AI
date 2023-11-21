@@ -6,7 +6,9 @@
         <template #header>
           <div class="flex justify-content-between">
               <Button type="button" icon="pi pi-filter-slash" label="Clear"  @click="clearFilter()" />
-          </div>
+              <Dropdown v-model="selected_test_file" :options="tests_files" filter placeholder="Select One" class="p-column-filter" style="min-width: 12rem" :showClear="true"/>
+              <Button type="button" icon="pi pi-play" label="Start"  @click="startSimulation()" />
+            </div>
         </template>
         <template #empty> No data found. </template>
         <template #loading> Loading traffic data. Please wait. </template>
@@ -71,7 +73,9 @@
         return {
           tableData: [],
           filters: null,
+          selected_test_file: null,
           attack_types: ['BENIGN', 'LDAP', 'MSSQL', 'UDP', 'Syn'],
+          tests_files: ['Real time traffic', 'tcp.synflood', 'udp.null']
         };
     },
     components: {
@@ -128,7 +132,18 @@
       },
       exportCSV() {
             this.$refs.dt.exportCSV();
-        }
+      },
+      startSimulation(){
+        const requestOptions = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ file: this.selected_test_file })
+        };
+        console.log('starting simulation...');
+        fetch("/start_sniffer", requestOptions)
+          .then(response => response.json())
+          .then(data => (console.log(data)));
+      }
     },
     
   };

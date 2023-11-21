@@ -9,23 +9,41 @@ from multiprocessing import Process
 
 model = FirewallModel()
 
-def start_sniffer():
+traffic_sniffer = None
+
+def start_my_sniffer():
+    global traffic_sniffer
     traffic_sniffer = sniffer.create_sniffer(
             input_interface='eth0',
             server_endpoint='http://127.0.0.1:5000/send_traffic',
-            verbose=True
+            verbose=False
         )
+    print('sniffer arrancado')
     traffic_sniffer.start()
-    try:
-        traffic_sniffer.join()
-    except KeyboardInterrupt:
-        traffic_sniffer.stop()
-    finally:
-        traffic_sniffer.join()
-sniffer_process = Process(target=start_sniffer)
 
-sniffer_process.start()
+TYPES_DICT = {
+        'tcp.synflood': 'test_files/pkt.TCP.synflood.spoofed.pcap',
+        'udp.null': 'test_files/pkt.UDP.null.pcapng',
+        'Real time traffic': 'Real time traffic'
+    }
 
+sniffer_created = False
+# def start_sniffer():
+#     traffic_sniffer = sniffer.create_sniffer(
+#             input_interface='eth0',
+#             server_endpoint='http://127.0.0.1:5000/send_traffic',
+#             verbose=False
+#         )
+#     traffic_sniffer.start()
+#     try:
+#         traffic_sniffer.join()
+#     except KeyboardInterrupt:
+#         traffic_sniffer.stop()
+#     finally:
+#         traffic_sniffer.join()
+
+# sniffer_process = Process(target=start_sniffer)
+# sniffer_process.start()
 app = Flask(__name__)
 CORS(app) 
 
@@ -57,7 +75,7 @@ def post_data():
         # Check if the request data is in JSON format
         if request.is_json:
             data = request.get_json()
-            print("Received new data:", data)
+            # print("Received new data:", data)
             confidences, predcted_classes =  model.predict(data['flows'])
             for i, (confidence, predcted_class) in enumerate(zip(confidences, predcted_classes)):
                 if predcted_class != '': # BENIGN
@@ -85,6 +103,43 @@ def get_data():
     print(len(predicted_data))
     return jsonify(predicted_data)
 
+@app.route('/start_sniffer', methods=['POST'])
+def start_sniffer():
+    if request.is_json:
+        data = request.get_json()
+        test_type = data['file']
+        test_file = TYPES_DICT[test_type]
+        reload_sniffer(test_file)
+        return jsonify({"message": "Data received successfully"}), 200
+    else:
+        return jsonify({"error": "Invalid JSON data in the request"}), 400
+
+def reload_sniffer(test_file):
+    print(test_file)
+    global traffic_sniffer
+    global sniffer_created
+    global predicted_data
+    if sniffer_created:
+        try: 
+            traffic_sniffer.stop()
+            traffic_sniffer.join()
+        except:
+            pass
+    else:
+        sniffer_created = True
+
+    predicted_data = []
+    if test_file == 'Real time traffic':
+        traffic_sniffer = sniffer.create_sniffer(
+            input_interface='eth0',
+            server_endpoint='http://127.0.0.1:5000/send_traffic',
+        )
+    else:
+        traffic_sniffer = sniffer.create_sniffer(
+            input_file=test_file,
+            server_endpoint='http://127.0.0.1:5000/send_traffic',
+        )
+    traffic_sniffer.start()
+
 if __name__ == '__main__':
     app.run(debug=True)
-    # sudo venv/bin/python cicflowmeter/src/cicflowmeter/sniffer.py -i eth0 -c flows.csv 
