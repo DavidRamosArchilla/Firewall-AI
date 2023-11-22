@@ -69,6 +69,10 @@ def not_found(e):
 def dashboard():
     return send_from_directory('./client/dist', 'index.html')
 
+@app.route('/traffic-analysis')
+def traffic_analysis():
+    return send_from_directory('./client/dist', 'index.html')
+
 @app.route('/send_traffic', methods=['POST'])
 def post_data():
     if request.is_json:
@@ -95,6 +99,17 @@ def post_data():
 def get_data():
     print(len(predicted_data))
     return jsonify(predicted_data)
+
+# @app.route('/get_traffic_analysis', methods=['GET'])
+# def get_traffic_analysis():
+    # data = {}
+    # for flow in predicted_data:
+    #     flow_type = flow['type']
+    #     if flow_type not in data:
+    #         data[flow_type] = 1
+    #     else:
+    #         data[flow_type] += 1
+    # return jsonify(data)
 
 @app.route('/start_sniffer', methods=['POST'])
 def start_sniffer():
