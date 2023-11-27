@@ -17,10 +17,10 @@ class FirewallModel:
 
     def load_model(self):
         # if self.use_xgboost:
-        # with open('./ML_models/xgboost_model.pkl', 'rb') as model_file:
-        #    return pickle.load(model_file)
+        with open('./ML_models/xgboost_model.pkl', 'rb') as model_file:
+           return pickle.load(model_file)
         # else:
-        return tf.keras.models.load_model(FirewallModel.MODEL_FILE_PATH)
+        # return tf.keras.models.load_model(FirewallModel.MODEL_FILE_PATH)
 
     def load_scaler(self):
         return load(FirewallModel.SCALER_PATH)
@@ -32,8 +32,8 @@ class FirewallModel:
     def predict(self, data):
         prepared_data = self.prepare_data(data)
         print(prepared_data.shape)
-        # preds = self.model.predict_proba(prepared_data)
-        preds = self.model.predict(prepared_data)
+        preds = self.model.predict_proba(prepared_data)
+        # preds = self.model.predict(prepared_data)
         predicted_classes = np.argmax(preds, axis=1)
         print(preds)
         print(predicted_classes)

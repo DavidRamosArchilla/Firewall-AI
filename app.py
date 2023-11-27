@@ -5,28 +5,17 @@ from pyflowmeter import sniffer
 
 from prediction import FirewallModel
 
-from multiprocessing import Process
-
-model = FirewallModel()
-
-traffic_sniffer = None
-
-def start_my_sniffer():
-    global traffic_sniffer
-    traffic_sniffer = sniffer.create_sniffer(
-            input_interface='eth0',
-            server_endpoint='http://127.0.0.1:5000/send_traffic',
-            verbose=False
-        )
-    print('sniffer arrancado')
-    traffic_sniffer.start()
 
 TYPES_DICT = {
         'tcp.synflood': 'test_files/pkt.TCP.synflood.spoofed.pcap',
         'udp.null': 'test_files/pkt.UDP.null.pcapng',
-        'Real time traffic': 'Real time traffic'
+        'Real time traffic': 'Real time traffic',
+        'hulk': 'test_files/hulk.pcap',
+        'slow_http': 'test_files/http_slowloris.pcap'
     }
 
+model = FirewallModel()
+traffic_sniffer = None
 sniffer_created = False
 # def start_sniffer():
 #     traffic_sniffer = sniffer.create_sniffer(
@@ -99,17 +88,6 @@ def post_data():
 def get_data():
     print(len(predicted_data))
     return jsonify(predicted_data)
-
-# @app.route('/get_traffic_analysis', methods=['GET'])
-# def get_traffic_analysis():
-    # data = {}
-    # for flow in predicted_data:
-    #     flow_type = flow['type']
-    #     if flow_type not in data:
-    #         data[flow_type] = 1
-    #     else:
-    #         data[flow_type] += 1
-    # return jsonify(data)
 
 @app.route('/start_sniffer', methods=['POST'])
 def start_sniffer():

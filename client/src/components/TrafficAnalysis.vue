@@ -1,9 +1,14 @@
 <template>
-    <div class="card">
-        <Chart type="bar" :data="barchartData" :options="chartOptions"/>
-        <Chart type="line" :data="linechartData" :options="chartOptions" class="h-30rem" />
+    <div class="chart-container">
+        <div class="chart-item">
+            <Chart type="bar" :data="barchartData" :options="chartOptions"/>
+        </div>
+        <div class="chart-item">
+            <Chart type="line" :data="linechartData" :options="chartOptions"/>
+        </div>
     </div>
 </template>
+
 <script>
 import Chart from 'primevue/chart';
 
@@ -45,8 +50,6 @@ export default {
                             }
                         ]
                     };
-                console.log('datasets:\n', lineChartDatasets);
-                console.log(Array.from({ length: data.length + 1 }, (_, index) => index))
                 this.linechartData = {
                     labels: Array.from({ length: data.length + 1 }, (_, index) => index),
                     datasets: lineChartDatasets
@@ -145,3 +148,15 @@ export default {
     }
 };
 </script>
+<style scoped>
+.chart-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.chart-item {
+    flex: 1;
+    margin-right: 10px; /* Adjust margin as needed */
+    height: 100vh;
+}
+</style>
