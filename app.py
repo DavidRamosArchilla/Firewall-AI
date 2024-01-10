@@ -7,32 +7,17 @@ from prediction import FirewallModel
 
 
 TYPES_DICT = {
-        'tcp.synflood': 'test_files/pkt.TCP.synflood.spoofed.pcap',
-        'udp.null': 'test_files/pkt.UDP.null.pcapng',
+        'TCP SYN flood': 'test_files/pkt.TCP.synflood.spoofed.pcap',
+        'UDP null': 'test_files/pkt.UDP.null.pcapng',
         'Real time traffic': 'Real time traffic',
-        'hulk': 'test_files/hulk.pcap',
-        'slow_http': 'test_files/http_slowloris.pcap'
+        'TCP reflection': 'test_files/amp.TCP.reflection.SYNACK.pcap',
+        'UDP.rdm.fixedlength': 'test_files/pkt.UDP.rdm.fixedlength.pcapng',
+        'UDP memcached': 'test_files/amp.UDP.memcached.ntp.cldap.pcap',
     }
 
 model = FirewallModel()
 traffic_sniffer = None
 sniffer_created = False
-# def start_sniffer():
-#     traffic_sniffer = sniffer.create_sniffer(
-#             input_interface='eth0',
-#             server_endpoint='http://127.0.0.1:5000/send_traffic',
-#             verbose=False
-#         )
-#     traffic_sniffer.start()
-#     try:
-#         traffic_sniffer.join()
-#     except KeyboardInterrupt:
-#         traffic_sniffer.stop()
-#     finally:
-#         traffic_sniffer.join()
-
-# sniffer_process = Process(target=start_sniffer)
-# sniffer_process.start()
 app = Flask(__name__)
 CORS(app) 
 
@@ -42,12 +27,6 @@ predicted_data = []
 @app.route('/assets/<path:filename>')
 def static_files(filename):
     return send_from_directory('./client/dist/assets', filename)
-
-# Catch-all route for the Vue.js application
-# @app.route('/', defaults={'path': ''})
-# @app.route('/<path:path>')
-# def catch_all(path):
-#     return send_from_directory('./client/dist', 'index.html')
 
 # Handle 404 errors
 @app.errorhandler(404)
@@ -62,31 +41,31 @@ def dashboard():
 def traffic_analysis():
     return send_from_directory('./client/dist', 'index.html')
 
-@app.route('/send_traffic', methods=['POST'])
+@app.route("/send_traffic", methods=["POST"])
 def post_data():
     if request.is_json:
         data = request.get_json()
-        # print("Received new data:", data)
-        confidences, predcted_classes =  model.predict(data['flows'])
-        for i, (confidence, predcted_class) in enumerate(zip(confidences, predcted_classes)):
-            if predcted_class != '': # BENIGN
-                flow = data['flows'][i]
-                predicted_data.append({'type': predcted_class,
-                                        'src_ip': f'{flow["src_ip"]}:{flow["src_port"]}',
-                                        'dst_ip': f'{flow["dst_ip"]}:{flow["dst_port"]}',
-                                        'confidence': f'{confidence:.2%}',
-                                        'timestamp': flow["timestamp"]
-                                        })
+        confidences, predcted_classes = model.predict(data["flows"])
+        for (flow, confidence, predcted_class) in zip(
+            data["flows"], confidences, predcted_classes
+        ):
+            predicted_data.append(
+                {
+                    "type": predcted_class,
+                    "src_ip": f'{flow["src_ip"]}:{flow["src_port"]}',
+                    "dst_ip": f'{flow["dst_ip"]}:{flow["dst_port"]}',
+                    "confidence": f"{confidence:.2%}",
+                    "timestamp": flow["timestamp"],
+                }
+            )
 
-        print(model.predict(data['flows']))
         return jsonify({"message": "Data received successfully"}), 200
     else:
         return jsonify({"error": "Invalid JSON data in the request"}), 400
 
 
-@app.route('/get_data', methods=['GET'])
+@app.route("/get_data", methods=["GET"])
 def get_data():
-    print(len(predicted_data))
     return jsonify(predicted_data)
 
 @app.route('/start_sniffer', methods=['POST'])
@@ -117,7 +96,7 @@ def reload_sniffer(test_file):
     predicted_data = []
     if test_file == 'Real time traffic':
         traffic_sniffer = sniffer.create_sniffer(
-            input_interface='eth0',
+            input_interface=None,
             server_endpoint='http://127.0.0.1:5000/send_traffic',
         )
     else:
