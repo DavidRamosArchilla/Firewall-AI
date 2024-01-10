@@ -12,7 +12,7 @@ TYPES_DICT = {
         'Real time traffic': 'Real time traffic',
         'TCP reflection': 'test_files/amp.TCP.reflection.SYNACK.pcap',
         'UDP.rdm.fixedlength': 'test_files/pkt.UDP.rdm.fixedlength.pcapng',
-        'UDP memcached': 'test_files/amp.UDP.memcached.ntp.cldap.pcap',
+        'UDP LDAP': 'test_files/amp.UDP.memcached.ntp.cldap.pcap',
     }
 
 model = FirewallModel()

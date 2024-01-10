@@ -78,7 +78,7 @@
           filters: null,
           selected_test_file: 'Real time traffic',
           attack_types: ['BENIGN', 'LDAP', 'MSSQL', 'UDP', 'Syn'],
-          tests_files: ['Real time traffic', 'TCP SYN flood', 'UDP null', 'UDP memcached', 'TCP reflection', 'UDP.rdm.fixedlength']
+          tests_files: ['Real time traffic', 'TCP SYN flood', 'UDP null', 'UDP LDAP', 'TCP reflection', 'UDP.rdm.fixedlength']
         };
     },
     components: {
