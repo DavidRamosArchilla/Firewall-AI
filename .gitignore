@@ -29,7 +29,3 @@ secrets.json
 # Ignore generated files and build artifacts
 /build/
 *.min.js
-
-# Ignore Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-
